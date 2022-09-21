@@ -11,15 +11,21 @@ table{
 td{
     border: 1px solid black;
     padding: 30px;
-    
 }
 
-td .cell{
-    background-color: red;
-
-}
 
 td:hover{
     background-color: rgba(112, 112, 112, 0.147);
 }
 
+.marked{
+    background-color: blue;
+}
+
+.shown{
+    background-color: beige;
+}
+
+.mine-clicked{
+    background-color: red;
+}
