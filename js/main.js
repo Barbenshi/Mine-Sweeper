@@ -1,9 +1,17 @@
 'use strict'
 
 
+// Constants
+const EMPTY = ''
 
+const WIN_IMG = '<img src="img/spider.png">'
+const LOSE_IMG = '<img src="img/fire.png">'
+const NORMAL_IMG = '<img src="img/gob-face.png">'
+
+const MINE_IMG = '<img src="img/mine.png">'
 
 var gElTable = document.querySelector('table')
+
 var gElRestartBtn = document.querySelector('.restart-btn')
 
 var gLevel = {
@@ -17,6 +25,7 @@ var gGame = {
     markedCount: 0,
     secsPassed: 0,
     timerInterval: null,
+    isFirstClick : true,
 }
 
 var gBoard
@@ -32,6 +41,8 @@ function initGame() {
 
     // DOM
     renderBoard(gBoard)
+
+    gElRestartBtn.innerHTML = NORMAL_IMG
 }
 
 
@@ -75,7 +86,7 @@ function renderBoard(mat) {
             if (cell.mineClicked) className += ' mine-clicked'
 
             var currElement = cell.minesAroundCount ? cell.minesAroundCount : EMPTY
-            if (cell.isMine) currElement = '*'
+            if (cell.isMine) currElement = MINE_IMG
             strHTML += `<td class="${className}" onclick="cellClicked(this,${i},${j})"
             onmousedown="onRightClick(event,this,${i},${j})">
             ${cell.isShown ? currElement : EMPTY}</td>`
@@ -90,10 +101,25 @@ function renderBoard(mat) {
 }
 
 const showNegs = setMinesNegsCount
-console.log(showNegs);
+// function recurseNegs(){
+//     for (var row = i - 1; row <= i + 1; row++) {
+//         if (row < 0 || row >= board.length) continue
 
+//         for (var col = j - 1; col <= j + 1; col++) {
+//             if (col < 0 || col >= board.length) continue
+//             if (row === i && col === j) continue
+//             if (noMinesNegs) {
+//                 // board[row][col].isShown = true
+//                 // showNegs(gBoard, row+1, col+1, 'Yes')
+//                 // board[row][col].isShown = true
+//                 if (!gBoard[row][col].minesAroundCount &&
+//                     !gBoard[row][col].isMine) showNegs(gBoard, row +1, col+1, 'Yes')
+//             }
+//         }
+//     }
+// }
 
-function setMinesNegsCount(board, i, j, noNegCell = false) {
+function setMinesNegsCount(board, i, j, noMinesNegs = false) {
     var count = 0
 
     for (var row = i - 1; row <= i + 1; row++) {
@@ -102,7 +128,11 @@ function setMinesNegsCount(board, i, j, noNegCell = false) {
         for (var col = j - 1; col <= j + 1; col++) {
             if (col < 0 || col >= board.length) continue
             if (row === i && col === j) continue
-            if (noNegCell) board[row][col].isShown = true
+            if (noMinesNegs) {
+                board[row][col].isShown = true
+                gGame.shownCount++
+                checkWin()
+            }
             if (board[row][col].isMine) count++
         }
     }
@@ -112,13 +142,17 @@ function setMinesNegsCount(board, i, j, noNegCell = false) {
 function cellClicked(elCell, i, j) {
     if (!gGame.isOn) return
     if (gBoard[i][j].isMarked) return
-    if (gGame.secsPassed === 0) starTimer()
+    if (gGame.isFirstClick){
+        gGame.isFirstClick = false
+        starTimer()
+    }
+
     if (gBoard[i][j].isMine) gameOver(elCell, i, j)
 
-    // Model
-    if (gBoard[i][j].minesAroundCount === 0) showNegs(gBoard, i, j, 'Yes')
-    console.log(gBoard[i][j].isShown);
+    if (!gBoard[i][j].minesAroundCount &&
+        !gBoard[i][j].isMine) showNegs(gBoard, i, j, 'Yes')
 
+    // Model
     gBoard[i][j].isShown = true
     gGame.shownCount++
 
@@ -143,7 +177,10 @@ function randomizeMines(board, num) {
 function onRightClick(ev, elCell, i, j) {
     if (ev.which !== 3) return
 
-    if (gGame.secsPassed === 0) starTimer()
+    if (gGame.isFirstClick){
+        gGame.isFirstClick = false
+        starTimer()
+    }
 
     // Model
     gBoard[i][j].isMarked = true
@@ -157,20 +194,24 @@ function onRightClick(ev, elCell, i, j) {
 
 function gameOver(elMine, i, j) {
     clearInterval(gGame.timerInterval)
-
+    
     gGame.isOn = false
     gBoard[i][j].mineClicked = true
-
+    
     showMines()
-    elMine.classList.add('mine-clicked')
 
+    elMine.classList.add('mine-clicked')
+    gElRestartBtn.innerHTML = LOSE_IMG 
+
+    
     // resetGameStats()
 }
 
 function checkWin() {
     if (gGame.markedCount !== gLevel.MINES ||
         gGame.shownCount !== gLevel.SIZE ** 2 - gLevel.MINES) return false
-
+    
+    gElRestartBtn.innerHTML = WIN_IMG    
     console.log('You win!');
     return true
 }
@@ -192,8 +233,7 @@ function resetGameStats() {
         shownCount: 0,
         markedCount: 0,
         secsPassed: 0,
-        // isFirstClick: true,
-        // firstClickTS: null,
+        isFirstClick: true,
         timerInterval: null,
     }
 }
@@ -213,6 +253,7 @@ function starTimer() {
     gGame.timerInterval = setInterval(() => {
         document.querySelector(".seconds").innerHTML = pad(++gGame.secsPassed % 60)
         document.querySelector(".minutes").innerHTML = pad(parseInt(gGame.secsPassed / 60, 10))
+        console.log(gGame.isOn);
     }, 1000)
 }
 // padding zeros if value lower than 9

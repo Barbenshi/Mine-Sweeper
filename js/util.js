@@ -1,5 +1,4 @@
 'use strict'
-const EMPTY = ''
 
 function getMat(size) {
     var board = []

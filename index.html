@@ -8,14 +8,19 @@
     <title>Mine Sweeper</title>
 </head>
 <body onload="initGame()">
+    
+    <div class="header">
+        <button class="restart-btn" onclick="initGame()">Restart</button>
+        <div class="timer"><span class="minutes">00</span>:<span class="seconds">00</span></div>
+    </div>
+    
+    <table></table>
+    
     <div class="difficulty">
         <button onclick="changeDifficulty(4,2)">Easy</button>
         <button onclick="changeDifficulty(8,14)">Medium</button>
         <button onclick="changeDifficulty(12,32)">Hard</button>
     </div>
-    <button class="restart-btn" onclick="initGame()">Restart</button>
-    <div class="timer"><span class="minutes">00</span>:<span class="seconds">00</span></div>
-    <table>></table>
 
     <script src="js/util.js"></script>
     <script src="js/main.js"></script>
