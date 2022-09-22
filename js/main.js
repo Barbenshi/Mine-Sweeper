@@ -1,6 +1,6 @@
 'use strict'
 
-
+// Setting local Storage high scores
 localStorage.easyBestScore = Infinity
 localStorage.mediumBestScore = Infinity
 localStorage.hardBestScore = Infinity
@@ -13,17 +13,15 @@ const LOSE_IMG = '<img src="img/fire.png">'
 const NORMAL_IMG = '<img src="img/gob-face.png">'
 
 const MINE_IMG = '<img src="img/mine.png">'
-const LIVE_IMG = '🕷️'
+const LIFE_IMG = '🕷️'
 const FLAGS_IMG = '🕸️'
 const HINT_IMG = '💡'
 
 var gElTable = document.querySelector('table')
 var gElHints = document.querySelector('.hints')
-
-
 var gElRestartBtn = document.querySelector('.restart-btn')
 
-var gLastMovePos 
+var gLastMovePos = null
 var gElLastCell
 
 var gLevel = {
@@ -47,7 +45,6 @@ var gGame = {
 }
 
 var gBoard
-
 
 function initGame() {
     resetGameStats()
@@ -207,7 +204,6 @@ function setMinesNegsCount(board, i, j) {
 function cellClicked(elCell, i, j) {
     if (!gGame.isOn) return
     if (gGame.isManual){
-        console.log('Game is still manual,plant your bomb');
         plantMine(i,j)
         return
     }
@@ -237,7 +233,6 @@ function cellClicked(elCell, i, j) {
     elCell.classList.add('shown')
     renderBoard(gBoard)
 
-    console.log('gGame.shownCount,gGame.markedCount :>> ', gGame.shownCount, gGame.markedCount);
     gLastMovePos = {i,j}
     gElLastCell = elCell
 
@@ -401,7 +396,7 @@ function updateLife() {
     document.querySelector('.header h2 span').innerText = EMPTY
 
     for (var i = 0; i <= gGame.lives; i++) {
-        document.querySelector('.header h2 span').innerText += LIVE_IMG
+        document.querySelector('.header h2 span').innerText += LIFE_IMG
     }
 }
 
@@ -422,19 +417,6 @@ function changeDifficulty(size, mines) {
     initGame()
 }
 
-function resetTimer() {
-    document.querySelector(".seconds").innerHTML = '00'
-    document.querySelector(".minutes").innerHTML = '00'
-}
-
-function starTimer() {
-    gGame.timerInterval = setInterval(() => {
-        document.querySelector(".seconds").innerHTML = pad(++gGame.secsPassed % 60)
-        document.querySelector(".minutes").innerHTML = pad(parseInt(gGame.secsPassed / 60, 10))
-    }, 1000)
-}
-// padding zeros if value lower than 9
-function pad(val) { return val > 9 ? val : "0" + val; }
 
 
 function getSafePositions(){
@@ -474,8 +456,9 @@ function plantMine(i,j){
     if(!gGame.manualMines) gGame.isManual = false
 }
 
-function manualMode(){
+function manualMode(elBtn){
     gGame.isManual = gGame.isManual? false : true
+    elBtn.classList.toggle('shown')
 }
 
 function undo(){
@@ -493,6 +476,20 @@ function undo(){
     gElLastCell.classList.remove('shown')
     renderBoard(gBoard)
 }
+
+function resetTimer() {
+    document.querySelector(".seconds").innerHTML = '00'
+    document.querySelector(".minutes").innerHTML = '00'
+}
+
+function starTimer() {
+    gGame.timerInterval = setInterval(() => {
+        document.querySelector(".seconds").innerHTML = pad(++gGame.secsPassed % 60)
+        document.querySelector(".minutes").innerHTML = pad(parseInt(gGame.secsPassed / 60, 10))
+    }, 1000)
+}
+// padding zeros if value lower than 9
+function pad(val) { return val > 9 ? val : "0" + val; }
 
 
 // function leftNegRecursion(i, j) {

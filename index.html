@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,27 +9,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Permanent+Marker&family=Rubik+Moonrocks&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron&family=Permanent+Marker&family=Rubik+Moonrocks&display=swap"
+        rel="stylesheet">
     <title>Goblin Pumpkins Sweeper</title>
 </head>
+
 <body onload="initGame()">
     <h1>Best Score: <span class="bestime">Not Available Yet</span></h1>
     <div class="header">
         <button onclick="undo()">OOPSI</button>
         <button onclick="saveMe()">SAVE ME!</button>
-        <button onclick="manualMode()">Manual Mode</button>
+        <button onclick="manualMode(this)">Manual Mode</button>
         <div class="box">
-        HINTS:<span class="hints" onclick="hintClicked(this)">num of hints left</span>
-             🕸️: <span class="flags"></span>
+            HINTS:<span class="hints" onclick="hintClicked(this)">num of hints left </span>
+            🕸️: <span class="flags"></span>
             <!-- BEST TIME: <span class="bestime">Not Available Yet</span> -->
-            </div>
+        </div>
         <h2>LIVES:<span></span></h2>
         <button class="restart-btn" onclick="initGame()">Restart</button>
         <div class="timer"><span class="minutes">00</span>:<span class="seconds">00</span></div>
     </div>
-    
+
     <table></table>
-    
+
     <div class="difficulty">
         <button onclick="changeDifficulty(4,2)">Easy</button>
         <button onclick="changeDifficulty(8,14)">Medium</button>
@@ -39,4 +43,5 @@
     <script src="js/util.js"></script>
     <script src="js/main.js"></script>
 </body>
+
 </html>
