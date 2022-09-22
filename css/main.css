@@ -114,7 +114,7 @@ td:hover {
 
 
 .marked {
-    background-image: url("img/spiderweb.png");
+    background-image: url("../img/spiderweb.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position-x: center;
