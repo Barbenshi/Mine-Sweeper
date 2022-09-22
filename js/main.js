@@ -23,6 +23,8 @@ var gElHints = document.querySelector('.hints')
 
 var gElRestartBtn = document.querySelector('.restart-btn')
 
+var gLastMovePos 
+var gElLastCell
 
 var gLevel = {
     SIZE: 4,
@@ -38,7 +40,10 @@ var gGame = {
     isFirstClick: true,
     lives: 2,
     hints: 3,
-    isHint: false
+    isHint: false,
+    saveMe:3,
+    isManual: false,
+    manualMines: gLevel.MINES,
 }
 
 var gBoard
@@ -108,32 +113,27 @@ function renderBoard(mat) {
 
 }
 
-// var gBoardCopy
-
-// function giveHint(gBoard,i,j){
-//     hintShowNegs(gBoard,i,j)
-//     hintHide(gBoard)
-// }
-
-function showNegs(board, i, j, elCell) {
+function showNegs(board, i, j, elCell, hide = false) {
     for (var row = i - 1; row <= i + 1; row++) {
         if (row < 0 || row >= board.length) continue
 
         for (var col = j - 1; col <= j + 1; col++) {
             if (col < 0 || col >= board.length) continue
             if (row === i && col === j) continue
-            if (board[row][col].isShown) continue
-            if (board[row][col].isMarked) {
-                board[row][col].isMarked = false
-                gGame.markedCount--
-
-                elCell.classList.remove('marked')
+            if(!hide){
+                if (board[row][col].isShown) continue
             }
-            board[row][col].isShown = true
-            gGame.shownCount++
+            if (board[row][col].isMarked) {
+                // board[row][col].isMarked = hide ? true : false
+                board[row][col].isMarked =  false
+                
+                // gGame.markedCount = hide? gGame.markedCount+1: gGame.markedCount-1
+                gGame.markedCount--
+            }
+            board[row][col].isShown = hide ? false : true
+            gGame.shownCount = hide? gGame.shownCount-1: gGame.shownCount+1
         }
     }
-
 }
 
 function hintClicked() {
@@ -173,6 +173,8 @@ function useHint(i, j) {
         }
         gGame.isHint = false
         gGame.hints--
+
+        updateHints()
         if (gGame.hints === 0) gElHints.classList.add('max-hints')
         renderBoard(gBoard)
     }, 1000);
@@ -204,6 +206,11 @@ function setMinesNegsCount(board, i, j) {
 
 function cellClicked(elCell, i, j) {
     if (!gGame.isOn) return
+    if (gGame.isManual){
+        console.log('Game is still manual,plant your bomb');
+        plantMine(i,j)
+        return
+    }
     if (gBoard[i][j].isShown) return
     if (gBoard[i][j].isMarked) return
     if (gGame.isHint) {
@@ -218,10 +225,12 @@ function cellClicked(elCell, i, j) {
     if (gGame.isFirstClick) onFirstClick()
 
     if (gBoard[i][j].isMine) {
-        gGame.lives ? removeLive() : gameOver(elCell, i, j)
+        gGame.lives ? removeLife() : gameOver(elCell, i, j)
     } else if (!gBoard[i][j].minesAroundCount) {
         // showing up negs if empty cell with no mine negs
         showNegs(gBoard, i, j, elCell)
+        // negRecursion(i, j)
+        // allDirectionsRecursion(i, j)
     }
 
     // DOM
@@ -229,6 +238,11 @@ function cellClicked(elCell, i, j) {
     renderBoard(gBoard)
 
     console.log('gGame.shownCount,gGame.markedCount :>> ', gGame.shownCount, gGame.markedCount);
+    gLastMovePos = {i,j}
+    gElLastCell = elCell
+
+    // Show negs function can make some changes on flags
+    updateFlags()
     checkWin()
 }
 
@@ -266,8 +280,9 @@ function onRightClick(ev, elCell, i, j) {
 
 function onFirstClick() {
     gGame.isFirstClick = false
+
     starTimer()
-    randomizeMines(gBoard, gLevel.MINES)
+    if(gGame.manualMines > 0) randomizeMines(gBoard, gLevel.MINES)
     setMinesNegsCounts(gBoard)
 }
 
@@ -282,7 +297,7 @@ function gameOver(elMine, i, j) {
     elMine.classList.add('mine-clicked')
     gElRestartBtn.innerHTML = LOSE_IMG
 
-    removeLive()
+    removeLife()
 }
 
 function checkWin() {
@@ -323,14 +338,17 @@ function resetGameStats() {
         timerInterval: null,
         lives: 2,
         hints: 3,
-        isHint: false
+        isHint: false,
+        saveMe:3,
+        isManual: false,
+        manualMines: gLevel.MINES,
     }
 
     gElHints.classList.remove('max-hints')
 }
 
 
-function removeLive() {
+function removeLife() {
     // Model
     gGame.lives--
     gGame.markedCount++
@@ -345,19 +363,19 @@ function checkHighScore() {
         case 4:
             if (gGame.secsPassed < localStorage.easyBestScore) {
                 localStorage.easyBestScore = gGame.secsPassed
-                document.querySelector('.header .bestime').innerText = localStorage.easyBestScore + ' Seconds'
+                document.querySelector('h1 span').innerText = localStorage.easyBestScore + ' Seconds'
             }
             break
         case 8:
             if (gGame.secsPassed < localStorage.mediumBestScore) {
                 localStorage.mediumBestScore = gGame.secsPassed
-                document.querySelector('.header .bestime').innerText = localStorage.mediumBestScore + ' Seconds'
+                document.querySelector('h1 span').innerText = localStorage.mediumBestScore + ' Seconds'
             }
             break
         case 12:
             if (gGame.secsPassed < localStorage.hardBestScore) {
                 localStorage.hardBestScore = gGame.secsPassed
-                document.querySelector('.header .bestime').innerText = localStorage.hardBestScore + ' Seconds'
+                document.querySelector('h1 span').innerText = localStorage.hardBestScore + ' Seconds'
             }
             break
     }
@@ -365,7 +383,7 @@ function checkHighScore() {
 
 function updateHighScore() {
     var time
-    switch (gLevel.SIZE){
+    switch (gLevel.SIZE) {
         case 4:
             time = localStorage.easyBestScore
             break
@@ -374,9 +392,9 @@ function updateHighScore() {
             break
         case 12:
             time = localStorage.hardBestScore
-            break       
+            break
     }
-    document.querySelector('.header .bestime').innerText = time + ' Seconds'
+    document.querySelector('h1 span').innerText = time + ' Seconds'
 }
 
 function updateLife() {
@@ -418,3 +436,133 @@ function starTimer() {
 // padding zeros if value lower than 9
 function pad(val) { return val > 9 ? val : "0" + val; }
 
+
+function getSafePositions(){
+    var coords = []
+    
+    for(var i=0;i<gBoard.length;i++){
+        for(var j=0;j<gBoard.length;j++){
+            if(!gBoard[i][j].isMine && !gBoard[i][j].isShown){
+                coords.push({i,j})
+            }
+        }
+    }
+    return coords
+}
+
+function saveMe(){
+    if(!gGame.saveMe) return
+    gGame.saveMe--
+
+    var safeCoords = getSafePositions()
+    var safePos = safeCoords[getRandomInt(0,safeCoords.length)]
+    
+    var elCell = document.querySelector(`.cell-${safePos.i}-${safePos.j}`)
+    elCell.classList.add('saved')
+
+    setTimeout(() => {
+        elCell.classList.remove('saved')
+        
+    }, 1000);
+    
+}
+
+function plantMine(i,j){
+    if(gBoard[i][j].isMine) return
+    gBoard[i][j].isMine = true
+    gGame.manualMines--
+    if(!gGame.manualMines) gGame.isManual = false
+}
+
+function manualMode(){
+    gGame.isManual = gGame.isManual? false : true
+}
+
+function undo(){
+    var i = gLastMovePos.i
+    var j = gLastMovePos.j
+    if(gBoard[i][j].isMine) return
+    
+    if(!gBoard[i][j].minesAroundCount) showNegs(gBoard,i,j,gElLastCell,'Hide-Negs')
+
+    // Model
+        gBoard[i][j].isShown =false
+        gGame.shownCount--
+
+    // DOM
+    gElLastCell.classList.remove('shown')
+    renderBoard(gBoard)
+}
+
+
+// function leftNegRecursion(i, j) {
+//     if (j < 0 || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
+//     if (j > 0 && gBoard[i][j - 1].minesAroundCount) gBoard[i][j - 1].isShown = true
+//     leftNegRecursion(i, j - 1)
+//     if (gBoard[i][j].isShown) return
+//     // if (!gBoard[i][j].isShown &&
+//     //     !gBoard[i][j].minesAroundCount)
+//                 if (board[row][col].isMarked) {
+//                 board[row][col].isMarked = false
+//                 gGame.markedCount--
+
+//                 elCell.classList.remove('marked')
+//             }
+//             board[row][col].isShown = true
+//             gGame.shownCount++
+// }
+
+// function rightNegRecursion(i, j) {
+//     if (j >= gBoard.length || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
+//     if (j < gBoard.length - 1 && gBoard[i][j + 1].minesAroundCount) gBoard[i][j + 1].isShown = true
+//     rightNegRecursion(i, j + 1)
+//     if (gBoard[i][j].isShown) return
+//     // if (!gBoard[i][j].isShown &&
+//     //     !gBoard[i][j].minesAroundCount)
+//     gBoard[i][j].isShown = true
+    
+// }
+
+// function lowerNegRecursion(i, j) {
+//     if (i >= gBoard.length || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
+//     if (i < gBoard.length - 1 && gBoard[i + 1][j].minesAroundCount) gBoard[i + 1][j].isShown = true
+//     lowerNegRecursion(i + 1, j)
+//     if (gBoard[i][j].isShown) return
+//     // if (!gBoard[i][j].isShown &&
+//     //     !gBoard[i][j].minesAroundCount)
+//     gBoard[i][j].isShown = true
+// }
+
+// function upperNegRecursion(i, j) {
+//     if (i < 0 || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
+//     if (i > 0 && gBoard[i - 1][j].minesAroundCount) gBoard[i - 1][j].isShown = true
+//     upperNegRecursion(i - 1, j)
+//     if (gBoard[i][j].isShown) return
+//     // if (!gBoard[i][j].isShown &&
+//     //     !gBoard[i][j].minesAroundCount)
+//     gBoard[i][j].isShown = true
+
+// }
+
+// function allDirectionsRecursion(i, j) {
+//     leftNegRecursion(i, j)
+//     rightNegRecursion(i, j)
+//     lowerNegRecursion(i, j)
+//     upperNegRecursion(i, j)
+// }
+
+
+// function allDirectionsRecursion(i, j) {
+//     if (i >= gBoard.length || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
+//     allDirectionsRecursion(i+1,j)
+//     if (gBoard[i][j].isShown) return
+//     for (var row = i - 1; row <= i + 1; row++) {
+//         if (row < 0 || row >= gBoard.length) continue
+//         for (var col = j - 1; col <= j + 1; col++) {
+//             if (col < 0 || col >= gBoard.length) continue
+//             if (row === i && col === j) continue
+//              gBoard[row][col].isShown = true
+            
+//         }
+//     }
+// }

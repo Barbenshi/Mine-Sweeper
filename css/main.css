@@ -8,62 +8,72 @@ body {
     background-image: url('/img/bg-try-01.jpg');
     background-size: cover;
     width: 800px;
-    ;
+
     height: 800px;
-    margin: auto;
+    margin: 60px auto;
 }
 
+h1{
+    font-family: 'Orbitron', sans-serif;
+}
 .header {
-    margin-top: 50px;
+    margin-top: 13px;
     border: 5px solid rgba(0, 0, 0, 0.568);
 
     width: 50%;
-    height: 16%;
+    height: 24%;
     background: radial-gradient(#CDD48E 0%, #fff 90%);
 }
 
 .box {
     background-color: #60492C;
     border: 5px solid rgba(0, 0, 0, 0.568);
-    ;
-    height: 30px
+    color: azure;
+    height: 30px;
 }
 
 .header h2 {
     display: inline-block;
     width: 104px;
 
-    margin-right: 100px;
+
 }
 
 .timer {
-    /* display:inline-block; */
-    width: 100px;
-    height: 50px;
 
+    display: inline-block;
+    width: 109px;
+    height: 50px;
     margin-left: 20px;
     padding: 2px;
-    border: 1px solid gray;
     border-radius: 6px;
-
-    font-size: 40px;
+    font-size: 35px;
     text-shadow: 5px 5px 10px #ff0000;
-    background-color: #60492c94;
+
+    font-family: 'Orbitron', sans-serif;
+    /* font-family: 'Permanent Marker', cursive; */
+    /* font-family: 'Rubik Moonrocks', cursive; */
 
 
 }
 
 button {
-    width: 100px;
-    height: 40px;
+    width: 107px;
+    height: 26px;
 
     margin: 10px;
     border-radius: 4px;
 
     background-color: #c2b97f73;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 13px;
     text-shadow: 5px 5px 10px #ff0000;
+    font-family: 'Permanent Marker', cursive;
+    /* font-family: 'Rubik Moonrocks', cursive; */
+}
+
+.difficulty{
+
 }
 
 .difficulty button:hover {
@@ -74,7 +84,6 @@ button {
 .restart-btn {
     width: 79px;
     height: 74px;
-    margin-left: 77px;
 }
 
 .restart-btn img {
@@ -95,9 +104,14 @@ table {
 
 td {
     border: 1px solid black;
-    width: 20px;
+    width: 30px;
     height: 30px;
     padding: 2px;
+    overflow: hidden;
+}
+
+td:hover {
+    background-color: #f9ebe0;
 }
 
 
@@ -111,7 +125,6 @@ td {
 
 .shown {
     background-color: #f9ebe0;
-    /* background-image: url(''); */
 }
 
 .mine-clicked {
@@ -119,8 +132,13 @@ td {
 }
 
 img {
-    width: 25px;
-    height: 25px;
+    width: 24px;
+    height: 20px;
+}
+
+.hints {
+    margin-left: -2px;
+    font-family: 'Orbitron', sans-serif;
 }
 
 .hints:hover {
@@ -137,4 +155,19 @@ table .clicked :hover {
 
 .max-hints:hover {
     cursor: not-allowed;
+}
+
+.saved {
+    background-color: #73628A
+}
+
+footer {
+    font-size: 30px;
+    color: #d5af74;
+    text-shadow: 5px 5px 10px #ff0000;
+    font-weight: 900;
+}
+
+.bestime {
+    margin-right: 20px
 }
