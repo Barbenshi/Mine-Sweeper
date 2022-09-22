@@ -6,7 +6,7 @@
 
 body {
 background: #fff url("../img/bg-try-01.jpg") center center/cover no-repeat;
-   // background-image: url("../img/bg-try-01.jpg");
+   /* background-image: url("../img/bg-try-01.jpg"); */
     background-size: cover;
     width: 800px;
 
