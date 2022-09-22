@@ -5,11 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/main.css">
-    <title>Mine Sweeper</title>
+    <title>Goblin Pumpkins Sweeper</title>
 </head>
 <body onload="initGame()">
     
     <div class="header">
+        <div class="box">HINTS:<span class="hints" onclick="hintClicked(this)">num of hints left</span>
+             🕸️:<span class="flags"></span>
+             BEST TIME:<span class="bestime">Not Available Yet</span>
+            </div>
+        <h2>LIVES:<span></span></h2>
         <button class="restart-btn" onclick="initGame()">Restart</button>
         <div class="timer"><span class="minutes">00</span>:<span class="seconds">00</span></div>
     </div>
