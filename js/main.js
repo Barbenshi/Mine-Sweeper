@@ -39,7 +39,7 @@ var gGame = {
     lives: 2,
     hints: 3,
     isHint: false,
-    saveMe:3,
+    saveMe: 3,
     isManual: false,
     manualMines: gLevel.MINES,
 }
@@ -74,6 +74,7 @@ function buildBoard(board) {
                 isShown: false, // depends on left click later
                 isMine: false, // all false except mines
                 isMarked: false, // Depends on right click
+                isRecursable: true,  // for negs recursion
             }
             board[i][j] = cell
         }
@@ -110,25 +111,25 @@ function renderBoard(mat) {
 
 }
 
-function showNegs(board, i, j, elCell, hide = false) {
+function showNegs(board, i, j, hide = false) {
     for (var row = i - 1; row <= i + 1; row++) {
         if (row < 0 || row >= board.length) continue
 
         for (var col = j - 1; col <= j + 1; col++) {
             if (col < 0 || col >= board.length) continue
             if (row === i && col === j) continue
-            if(!hide){
+            if (!hide) {
                 if (board[row][col].isShown) continue
             }
             if (board[row][col].isMarked) {
                 // board[row][col].isMarked = hide ? true : false
-                board[row][col].isMarked =  false
-                
+                board[row][col].isMarked = false
+
                 // gGame.markedCount = hide? gGame.markedCount+1: gGame.markedCount-1
                 gGame.markedCount--
             }
             board[row][col].isShown = hide ? false : true
-            gGame.shownCount = hide? gGame.shownCount-1: gGame.shownCount+1
+            gGame.shownCount = hide ? gGame.shownCount - 1 : gGame.shownCount + 1
         }
     }
 }
@@ -203,8 +204,8 @@ function setMinesNegsCount(board, i, j) {
 
 function cellClicked(elCell, i, j) {
     if (!gGame.isOn) return
-    if (gGame.isManual){
-        plantMine(i,j)
+    if (gGame.isManual) {
+        plantMine(i, j)
         return
     }
     if (gBoard[i][j].isShown) return
@@ -224,16 +225,15 @@ function cellClicked(elCell, i, j) {
         gGame.lives ? removeLife() : gameOver(elCell, i, j)
     } else if (!gBoard[i][j].minesAroundCount) {
         // showing up negs if empty cell with no mine negs
-        showNegs(gBoard, i, j, elCell)
-        // negRecursion(i, j)
-        // allDirectionsRecursion(i, j)
+        // showNegs(gBoard, i, j)
+        allDirectionsRecursion(gBoard, i, j)
     }
 
     // DOM
     elCell.classList.add('shown')
     renderBoard(gBoard)
 
-    gLastMovePos = {i,j}
+    gLastMovePos = { i, j }
     gElLastCell = elCell
 
     // Show negs function can make some changes on flags
@@ -277,7 +277,7 @@ function onFirstClick() {
     gGame.isFirstClick = false
 
     starTimer()
-    if(gGame.manualMines > 0) randomizeMines(gBoard, gLevel.MINES)
+    if (gGame.manualMines > 0) randomizeMines(gBoard, gLevel.MINES)
     setMinesNegsCounts(gBoard)
 }
 
@@ -334,7 +334,7 @@ function resetGameStats() {
         lives: 2,
         hints: 3,
         isHint: false,
-        saveMe:3,
+        saveMe: 3,
         isManual: false,
         manualMines: gLevel.MINES,
     }
@@ -419,58 +419,58 @@ function changeDifficulty(size, mines) {
 
 
 
-function getSafePositions(){
+function getSafePositions() {
     var coords = []
-    
-    for(var i=0;i<gBoard.length;i++){
-        for(var j=0;j<gBoard.length;j++){
-            if(!gBoard[i][j].isMine && !gBoard[i][j].isShown){
-                coords.push({i,j})
+
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard.length; j++) {
+            if (!gBoard[i][j].isMine && !gBoard[i][j].isShown) {
+                coords.push({ i, j })
             }
         }
     }
     return coords
 }
 
-function saveMe(){
-    if(!gGame.saveMe) return
+function saveMe() {
+    if (!gGame.saveMe) return
     gGame.saveMe--
 
     var safeCoords = getSafePositions()
-    var safePos = safeCoords[getRandomInt(0,safeCoords.length)]
-    
+    var safePos = safeCoords[getRandomInt(0, safeCoords.length)]
+
     var elCell = document.querySelector(`.cell-${safePos.i}-${safePos.j}`)
     elCell.classList.add('saved')
 
     setTimeout(() => {
         elCell.classList.remove('saved')
-        
+
     }, 1000);
-    
+
 }
 
-function plantMine(i,j){
-    if(gBoard[i][j].isMine) return
+function plantMine(i, j) {
+    if (gBoard[i][j].isMine) return
     gBoard[i][j].isMine = true
     gGame.manualMines--
-    if(!gGame.manualMines) gGame.isManual = false
+    if (!gGame.manualMines) gGame.isManual = false
 }
 
-function manualMode(elBtn){
-    gGame.isManual = gGame.isManual? false : true
+function manualMode(elBtn) {
+    gGame.isManual = gGame.isManual ? false : true
     elBtn.classList.toggle('shown')
 }
 
-function undo(){
+function undo() {
     var i = gLastMovePos.i
     var j = gLastMovePos.j
-    if(gBoard[i][j].isMine) return
-    
-    if(!gBoard[i][j].minesAroundCount) showNegs(gBoard,i,j,gElLastCell,'Hide-Negs')
+    if (gBoard[i][j].isMine) return
+
+    if (!gBoard[i][j].minesAroundCount) showNegs(gBoard, i, j, 'Hide-Negs')
 
     // Model
-        gBoard[i][j].isShown =false
-        gGame.shownCount--
+    gBoard[i][j].isShown = false
+    gGame.shownCount--
 
     // DOM
     gElLastCell.classList.remove('shown')
@@ -517,7 +517,7 @@ function pad(val) { return val > 9 ? val : "0" + val; }
 //     // if (!gBoard[i][j].isShown &&
 //     //     !gBoard[i][j].minesAroundCount)
 //     gBoard[i][j].isShown = true
-    
+
 // }
 
 // function lowerNegRecursion(i, j) {
@@ -549,17 +549,63 @@ function pad(val) { return val > 9 ? val : "0" + val; }
 // }
 
 
-// function allDirectionsRecursion(i, j) {
-//     if (i >= gBoard.length || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
-//     allDirectionsRecursion(i+1,j)
-//     if (gBoard[i][j].isShown) return
-//     for (var row = i - 1; row <= i + 1; row++) {
-//         if (row < 0 || row >= gBoard.length) continue
-//         for (var col = j - 1; col <= j + 1; col++) {
-//             if (col < 0 || col >= gBoard.length) continue
-//             if (row === i && col === j) continue
-//              gBoard[row][col].isShown = true
-            
-//         }
-//     }
+function leftNegRecursion(board, i, j) {
+    if (j < 0 || board[i][j].isMine ||
+        board[i][j].minesAroundCount) return
+    leftNegRecursion(board, i, j - 1)
+    console.log(i, j);
+    showNegs(board, i, j)
+
+}
+function rightNegRecursion(board, i, j) {
+    if (j >= board.length || board[i][j].isMine ||
+        board[i][j].minesAroundCount) return
+    rightNegRecursion(board, i, j + 1)
+    console.log(i, j);
+    showNegs(board, i, j)
+}
+function topNegRecursion(board, i, j) {
+    if (i < 0 || board[i][j].isMine ||
+        board[i][j].minesAroundCount) return
+    topNegRecursion(board, i - 1, j)
+    console.log(i, j);
+    showNegs(board, i, j)
+}
+function bottomNegRecursion(board, i, j) {
+    if (i >= board.length || board[i][j].isMine ||
+        board[i][j].minesAroundCount) return
+    bottomNegRecursion(board, i + 1, j)
+    console.log(i, j);
+    showNegs(board, i, j)
+}
+
+
+
+// function allDirectionsRecursion(board,i, j) {
+// topNegRecursion(board,i, j)
+// bottomNegRecursion(board,i, j)
+// leftNegRecursion(board,i, j)
+// rightNegRecursion(board,i, j)
+// console.log('Done');
+
 // }
+
+function allDirectionsRecursion(board, i, j) {
+    for (var row = i - 1; row <= i + 1; row++) {
+        if (row < 0 || row >= board.length) continue
+
+        for (var col = j - 1; col <= j + 1; col++) {
+            if (col < 0 || col >= board.length) continue
+
+
+            console.log(row, col);
+            if (!board[row][col].minesAroundCount && board[row][col].isRecursable) {
+                showNegs(board, row, col)
+                board[row][col].isRecursable = false
+                allDirectionsRecursion(board, row, col)
+            }
+
+        }
+    }
+    console.log('Done');
+}
