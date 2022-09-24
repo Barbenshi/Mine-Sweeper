@@ -5,7 +5,7 @@
 }
 
 body {
-    background-image: url("../img/bg-try-01.jpg");
+    background-image: url("../img/bgtry03.png");
     background-size: cover;
     width: 800px;
 
@@ -23,6 +23,10 @@ h1{
     width: 50%;
     height: 24%;
     background: radial-gradient(#CDD48E 0%, #fff 90%);
+}
+
+.header button:hover{
+    opacity: 50%;
 }
 
 .box {
@@ -72,8 +76,12 @@ button {
     /* font-family: 'Rubik Moonrocks', cursive; */
 }
 
+.difficulty button{
+    font-size: 16px;
+}
 
 .difficulty button:hover {
+    font-size: 17px;
     font-weight: bold;
     background-color: #c2b97ffd;
 }
@@ -167,4 +175,9 @@ footer {
 
 .bestime {
     margin-right: 20px
+}
+
+.manual-mode{
+    background-color: black;
+    color: #fff;
 }

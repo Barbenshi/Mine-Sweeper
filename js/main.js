@@ -56,12 +56,8 @@ function initGame() {
 
     // DOM
     renderBoard(gBoard)
+    resetDOM()
 
-    gElRestartBtn.innerHTML = NORMAL_IMG
-    updateLife()
-    updateFlags()
-    updateHints()
-    updateHighScore()
 }
 
 
@@ -339,8 +335,9 @@ function resetGameStats() {
         manualMines: gLevel.MINES,
     }
 
-    gElHints.classList.remove('max-hints')
+
 }
+
 
 
 function removeLife() {
@@ -435,6 +432,7 @@ function getSafePositions() {
 function saveMe() {
     if (!gGame.saveMe) return
     gGame.saveMe--
+    updateSaveMe()
 
     var safeCoords = getSafePositions()
     var safePos = safeCoords[getRandomInt(0, safeCoords.length)]
@@ -449,16 +447,25 @@ function saveMe() {
 
 }
 
+function updateSaveMe() {
+    document.querySelector('.header button span').innerText = gGame.saveMe
+}
+
 function plantMine(i, j) {
     if (gBoard[i][j].isMine) return
     gBoard[i][j].isMine = true
     gGame.manualMines--
-    if (!gGame.manualMines) gGame.isManual = false
+    if (!gGame.manualMines) {
+        gGame.isManual = false
+        document.querySelector(".manual-mode").classList.remove('manual-mode')
+    }
 }
 
 function manualMode(elBtn) {
+    if (!gGame.isFirstClick) return
+    if (gGame.manualMines < gLevel.MINES) return
     gGame.isManual = gGame.isManual ? false : true
-    elBtn.classList.toggle('shown')
+    elBtn.classList.toggle('manual-mode')
 }
 
 function undo() {
@@ -475,6 +482,17 @@ function undo() {
     // DOM
     gElLastCell.classList.remove('shown')
     renderBoard(gBoard)
+}
+
+function resetDOM() {
+    gElRestartBtn.innerHTML = NORMAL_IMG
+    updateLife()
+    updateFlags()
+    updateHints()
+    updateHighScore()
+    updateSaveMe()
+    gElHints.classList.remove('max-hints')
+    document.querySelector(".manual-mode").classList.remove('manual-mode')
 }
 
 function resetTimer() {
