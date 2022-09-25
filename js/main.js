@@ -8,7 +8,7 @@ localStorage.hardBestScore = Infinity
 // Constants
 const EMPTY = ''
 
-const WIN_IMG = '<img src="img/spider.png">'
+const WIN_IMG = '<img src="img/spiderman-win.png">'
 const LOSE_IMG = '<img src="img/fire.png">'
 const NORMAL_IMG = '<img src="img/gob-face.png">'
 
@@ -21,8 +21,8 @@ var gElTable = document.querySelector('table')
 var gElHints = document.querySelector('.hints')
 var gElRestartBtn = document.querySelector('.restart-btn')
 
-var gLastMovePos = null
-var gElLastCell
+var gLastMovesPos = []
+var gElLastCells = []
 
 var gLevel = {
     SIZE: 4,
@@ -42,6 +42,11 @@ var gGame = {
     saveMe: 3,
     isManual: false,
     manualMines: gLevel.MINES,
+    isSevenBoom: false,
+    megaHint: 1,
+    isMegaHint: false,
+    megaHintPos: null,
+    minesPos:[],
 }
 
 var gBoard
@@ -200,6 +205,10 @@ function setMinesNegsCount(board, i, j) {
 
 function cellClicked(elCell, i, j) {
     if (!gGame.isOn) return
+    if (gGame.isMegaHint) {
+        onMegaHint(i, j)
+        return
+    }
     if (gGame.isManual) {
         plantMine(i, j)
         return
@@ -229,8 +238,8 @@ function cellClicked(elCell, i, j) {
     elCell.classList.add('shown')
     renderBoard(gBoard)
 
-    gLastMovePos = { i, j }
-    gElLastCell = elCell
+    gLastMovesPos.push({ i, j })
+    gElLastCells.push(elCell)
 
     // Show negs function can make some changes on flags
     updateFlags()
@@ -242,7 +251,11 @@ function randomizeMines(board, num) {
     for (var i = 0; i < num; i++) {
         var pos = getRandomPos()
         var currCell = board[pos.i][pos.j]
-        currCell.isMine || currCell.isShown ? i-- : board[pos.i][pos.j].isMine = true
+        if (currCell.isMine || currCell.isShown) i--
+        else {
+            board[pos.i][pos.j].isMine = true
+            gGame.minesPos.push({ i: pos.i, j: pos.j })
+        }
     }
 }
 
@@ -273,7 +286,7 @@ function onFirstClick() {
     gGame.isFirstClick = false
 
     starTimer()
-    if (gGame.manualMines > 0) randomizeMines(gBoard, gLevel.MINES)
+    if (gGame.manualMines > 0 && !gGame.isSevenBoom) randomizeMines(gBoard, gLevel.MINES)
     setMinesNegsCounts(gBoard)
 }
 
@@ -333,6 +346,12 @@ function resetGameStats() {
         saveMe: 3,
         isManual: false,
         manualMines: gLevel.MINES,
+        isSevenBoom: false,
+        megaHint: 1,
+        isMegaHint: false,
+        megaHintPos: null,
+        minesPos:[]
+
     }
 
 
@@ -414,7 +433,20 @@ function changeDifficulty(size, mines) {
     initGame()
 }
 
+function onSevenBoom() {
+    initGame()
+    var count = 0
 
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard.length; j++) {
+            if (count) {
+                if (count % 7 === 0) gBoard[i][j].isMine = true
+            }
+            count++
+        }
+    }
+    gGame.isSevenBoom = true
+}
 
 function getSafePositions() {
     var coords = []
@@ -463,25 +495,99 @@ function plantMine(i, j) {
 
 function manualMode(elBtn) {
     if (!gGame.isFirstClick) return
+    if (gGame.isSevenBoom) return
     if (gGame.manualMines < gLevel.MINES) return
     gGame.isManual = gGame.isManual ? false : true
     elBtn.classList.toggle('manual-mode')
 }
 
+function onDarkMode() {
+          document.body.classList.toggle("dark-theme");
+
+          var elBtns = document.querySelectorAll('button')
+          for(var i=0;i<elBtns.length;i++){
+            elBtns[i].classList.toggle("dark-theme");
+          }
+
+          document.querySelector('.header').classList.toggle('dark-theme')
+              
+}
+
+function megaHint() {
+    // TODO
+    if (!gGame.megaHint) return
+    if (gGame.isFirstClick) return
+    gGame.isMegaHint = gGame.isMegaHint ? false : true
+    document.querySelector('.mega-hint').classList.toggle('mega-on')
+
+
+}
+
+function onMegaHint(i, j) {
+    if (gGame.megaHint) {
+        gGame.megaHintPos = [{ i, j }]
+        gGame.megaHint--
+    } else {
+        gGame.megaHintPos.push({ i, j })
+        showSelectedArea(gGame.megaHintPos[0], gGame.megaHintPos[1])
+        gGame.isMegaHint = false
+    }
+}
+
+function showSelectedArea(posA, posB) {
+    for (var i = posA.i; i <= posB.i; i++) {
+        for (var j = posA.j; j <= posB.j; j++) {
+            gBoard[i][j].isShown = true
+        }
+    }
+    renderBoard(gBoard)
+
+    setTimeout(() => {
+        for (var i = posA.i; i <= posB.i; i++) {
+            for (var j = posA.j; j <= posB.j; j++) {
+                gBoard[i][j].isShown = false
+            }
+        }
+        renderBoard(gBoard)
+        document.querySelector('.mega-hint').classList.remove('mega-on')
+    }, 2000);
+}
+
+function onExterminator(){
+    // Looping through 3 mines
+    if(gGame.minesPos.length <3) return
+    if(gGame.minesPos.length != gLevel.MINES) return
+    for(var i =0 ;i<3;i++){
+        var randNum = getRandomInt(0,gGame.minesPos.length)
+        gBoard[gGame.minesPos[randNum].i][gGame.minesPos[randNum].j].isMine = false
+        gGame.minesPos.splice(randNum,1)
+    }
+    setMinesNegsCounts(gBoard)
+
+    renderBoard(gBoard)
+}
+
 function undo() {
-    var i = gLastMovePos.i
-    var j = gLastMovePos.j
+    if (gGame.isFirstClick) return
+    var i = gLastMovesPos[gLastMovesPos.length - 1].i
+    var j = gLastMovesPos[gLastMovesPos.length - 1].j
     if (gBoard[i][j].isMine) return
 
-    if (!gBoard[i][j].minesAroundCount) showNegs(gBoard, i, j, 'Hide-Negs')
+    if (!gBoard[i][j].minesAroundCount) allDirectionsRecursion(gBoard, i, j, 'Hide-Negs')
 
     // Model
     gBoard[i][j].isShown = false
     gGame.shownCount--
 
+
     // DOM
-    gElLastCell.classList.remove('shown')
+    gElLastCells[gElLastCells.length - 1].classList.remove('shown')
     renderBoard(gBoard)
+
+    gLastMovesPos.pop()
+    gElLastCells.pop()
+
+    if (!gLastMovesPos.length) gGame.isFirstClick = true
 }
 
 function resetDOM() {
@@ -492,7 +598,10 @@ function resetDOM() {
     updateHighScore()
     updateSaveMe()
     gElHints.classList.remove('max-hints')
-    document.querySelector(".manual-mode").classList.remove('manual-mode')
+    if (document.querySelector(".manual-mode")) {
+        document.querySelector(".manual-mode").classList.remove('manual-mode')
+    }
+    document.querySelector('.mega-hint').classList.remove('mega-on')
 }
 
 function resetTimer() {
@@ -608,16 +717,20 @@ function bottomNegRecursion(board, i, j) {
 
 // }
 
-function allDirectionsRecursion(board, i, j) {
+function allDirectionsRecursion(board, i, j, hide = false) {
     for (var row = i - 1; row <= i + 1; row++) {
         if (row < 0 || row >= board.length) continue
 
         for (var col = j - 1; col <= j + 1; col++) {
             if (col < 0 || col >= board.length) continue
 
-
-            console.log(row, col);
-            if (!board[row][col].minesAroundCount && board[row][col].isRecursable) {
+            if (hide) {
+                if (!board[row][col].minesAroundCount && !board[row][col].isRecursable) {
+                    showNegs(board, row, col, hide)
+                    board[row][col].isRecursable = true
+                    allDirectionsRecursion(board, row, col, hide)
+                }
+            } else if (!board[row][col].minesAroundCount && board[row][col].isRecursable) {
                 showNegs(board, row, col)
                 board[row][col].isRecursable = false
                 allDirectionsRecursion(board, row, col)
@@ -625,5 +738,4 @@ function allDirectionsRecursion(board, i, j) {
 
         }
     }
-    console.log('Done');
 }
