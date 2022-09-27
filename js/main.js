@@ -17,6 +17,13 @@ const LIFE_IMG = '🕷️'
 const FLAGS_IMG = '🕸️'
 const HINT_IMG = '💡'
 
+const gWinAudio = new Audio('../audio/spiderman-thank-you.wav')
+const gApplauseAudio = new Audio('../audio/applause.wav')
+const gLoseAudio = new Audio('../audio/spiderman-lose.wav')
+const gExterminatorAudio = new Audio('../audio/bomb-has-been-defused-csgo-sound-effect.mp3')
+
+// Global variables
+
 var gElTable = document.querySelector('table')
 var gElHints = document.querySelector('.hints')
 var gElRestartBtn = document.querySelector('.restart-btn')
@@ -110,6 +117,29 @@ function renderBoard(mat) {
 
     gElTable.innerHTML = strHTML
 
+}
+
+function negsRecursion(board, i, j, hide = false) {
+    for (var row = i - 1; row <= i + 1; row++) {
+        if (row < 0 || row >= board.length) continue
+
+        for (var col = j - 1; col <= j + 1; col++) {
+            if (col < 0 || col >= board.length) continue
+
+            if (hide) {
+                if (!board[row][col].minesAroundCount && !board[row][col].isRecursable) {
+                    showNegs(board, row, col, hide)
+                    board[row][col].isRecursable = true
+                    negsRecursion(board, row, col, hide)
+                }
+            } else if (!board[row][col].minesAroundCount && board[row][col].isRecursable) {
+                showNegs(board, row, col)
+                board[row][col].isRecursable = false
+                negsRecursion(board, row, col)
+            }
+
+        }
+    }
 }
 
 function showNegs(board, i, j, hide = false) {
@@ -231,7 +261,7 @@ function cellClicked(elCell, i, j) {
     } else if (!gBoard[i][j].minesAroundCount) {
         // showing up negs if empty cell with no mine negs
         // showNegs(gBoard, i, j)
-        allDirectionsRecursion(gBoard, i, j)
+        negsRecursion(gBoard, i, j)
     }
 
     // DOM
@@ -302,6 +332,10 @@ function gameOver(elMine, i, j) {
     gElRestartBtn.innerHTML = LOSE_IMG
 
     removeLife()
+    document.querySelector('h2 span').innerText = '\nK.O'
+    
+
+    gLoseAudio.play()
 }
 
 function checkWin() {
@@ -315,6 +349,9 @@ function checkWin() {
     gGame.isOn = false
     clearInterval(gGame.timerInterval)
     checkHighScore()
+
+    gApplauseAudio.play()
+    gWinAudio.play()
     return true
 }
 
@@ -554,9 +591,11 @@ function showSelectedArea(posA, posB) {
 }
 
 function onExterminator(){
-    // Looping through 3 mines
+    if(gGame.isFirstClick) return
     if(gGame.minesPos.length <3) return
     if(gGame.minesPos.length != gLevel.MINES) return
+    
+    // Looping through 3 mines
     for(var i =0 ;i<3;i++){
         var randNum = getRandomInt(0,gGame.minesPos.length)
         gBoard[gGame.minesPos[randNum].i][gGame.minesPos[randNum].j].isMine = false
@@ -565,15 +604,17 @@ function onExterminator(){
     setMinesNegsCounts(gBoard)
 
     renderBoard(gBoard)
+    gExterminatorAudio.play()
 }
 
 function undo() {
     if (gGame.isFirstClick) return
+
     var i = gLastMovesPos[gLastMovesPos.length - 1].i
     var j = gLastMovesPos[gLastMovesPos.length - 1].j
     if (gBoard[i][j].isMine) return
 
-    if (!gBoard[i][j].minesAroundCount) allDirectionsRecursion(gBoard, i, j, 'Hide-Negs')
+    if (!gBoard[i][j].minesAroundCount) negsRecursion(gBoard, i, j, 'Hide-Negs')
 
     // Model
     gBoard[i][j].isShown = false
@@ -618,124 +659,3 @@ function starTimer() {
 // padding zeros if value lower than 9
 function pad(val) { return val > 9 ? val : "0" + val; }
 
-
-// function leftNegRecursion(i, j) {
-//     if (j < 0 || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
-//     if (j > 0 && gBoard[i][j - 1].minesAroundCount) gBoard[i][j - 1].isShown = true
-//     leftNegRecursion(i, j - 1)
-//     if (gBoard[i][j].isShown) return
-//     // if (!gBoard[i][j].isShown &&
-//     //     !gBoard[i][j].minesAroundCount)
-//                 if (board[row][col].isMarked) {
-//                 board[row][col].isMarked = false
-//                 gGame.markedCount--
-
-//                 elCell.classList.remove('marked')
-//             }
-//             board[row][col].isShown = true
-//             gGame.shownCount++
-// }
-
-// function rightNegRecursion(i, j) {
-//     if (j >= gBoard.length || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
-//     if (j < gBoard.length - 1 && gBoard[i][j + 1].minesAroundCount) gBoard[i][j + 1].isShown = true
-//     rightNegRecursion(i, j + 1)
-//     if (gBoard[i][j].isShown) return
-//     // if (!gBoard[i][j].isShown &&
-//     //     !gBoard[i][j].minesAroundCount)
-//     gBoard[i][j].isShown = true
-
-// }
-
-// function lowerNegRecursion(i, j) {
-//     if (i >= gBoard.length || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
-//     if (i < gBoard.length - 1 && gBoard[i + 1][j].minesAroundCount) gBoard[i + 1][j].isShown = true
-//     lowerNegRecursion(i + 1, j)
-//     if (gBoard[i][j].isShown) return
-//     // if (!gBoard[i][j].isShown &&
-//     //     !gBoard[i][j].minesAroundCount)
-//     gBoard[i][j].isShown = true
-// }
-
-// function upperNegRecursion(i, j) {
-//     if (i < 0 || gBoard[i][j].isMine || gBoard[i][j].minesAroundCount) return
-//     if (i > 0 && gBoard[i - 1][j].minesAroundCount) gBoard[i - 1][j].isShown = true
-//     upperNegRecursion(i - 1, j)
-//     if (gBoard[i][j].isShown) return
-//     // if (!gBoard[i][j].isShown &&
-//     //     !gBoard[i][j].minesAroundCount)
-//     gBoard[i][j].isShown = true
-
-// }
-
-// function allDirectionsRecursion(i, j) {
-//     leftNegRecursion(i, j)
-//     rightNegRecursion(i, j)
-//     lowerNegRecursion(i, j)
-//     upperNegRecursion(i, j)
-// }
-
-
-function leftNegRecursion(board, i, j) {
-    if (j < 0 || board[i][j].isMine ||
-        board[i][j].minesAroundCount) return
-    leftNegRecursion(board, i, j - 1)
-    console.log(i, j);
-    showNegs(board, i, j)
-
-}
-function rightNegRecursion(board, i, j) {
-    if (j >= board.length || board[i][j].isMine ||
-        board[i][j].minesAroundCount) return
-    rightNegRecursion(board, i, j + 1)
-    console.log(i, j);
-    showNegs(board, i, j)
-}
-function topNegRecursion(board, i, j) {
-    if (i < 0 || board[i][j].isMine ||
-        board[i][j].minesAroundCount) return
-    topNegRecursion(board, i - 1, j)
-    console.log(i, j);
-    showNegs(board, i, j)
-}
-function bottomNegRecursion(board, i, j) {
-    if (i >= board.length || board[i][j].isMine ||
-        board[i][j].minesAroundCount) return
-    bottomNegRecursion(board, i + 1, j)
-    console.log(i, j);
-    showNegs(board, i, j)
-}
-
-
-
-// function allDirectionsRecursion(board,i, j) {
-// topNegRecursion(board,i, j)
-// bottomNegRecursion(board,i, j)
-// leftNegRecursion(board,i, j)
-// rightNegRecursion(board,i, j)
-// console.log('Done');
-
-// }
-
-function allDirectionsRecursion(board, i, j, hide = false) {
-    for (var row = i - 1; row <= i + 1; row++) {
-        if (row < 0 || row >= board.length) continue
-
-        for (var col = j - 1; col <= j + 1; col++) {
-            if (col < 0 || col >= board.length) continue
-
-            if (hide) {
-                if (!board[row][col].minesAroundCount && !board[row][col].isRecursable) {
-                    showNegs(board, row, col, hide)
-                    board[row][col].isRecursable = true
-                    allDirectionsRecursion(board, row, col, hide)
-                }
-            } else if (!board[row][col].minesAroundCount && board[row][col].isRecursable) {
-                showNegs(board, row, col)
-                board[row][col].isRecursable = false
-                allDirectionsRecursion(board, row, col)
-            }
-
-        }
-    }
-}

@@ -7,15 +7,17 @@
 body {
     background-image: url("../img/bgtry03.png");
     background-size: cover;
+    background-repeat: no-repeat;
     width: 800px;
     height: 800px;
 
     margin: 60px auto;
 }
 
-h1{
+h1 {
     font-family: 'Orbitron', sans-serif;
 }
+
 .header {
     margin-top: 13px;
     border: 5px solid rgba(0, 0, 0, 0.568);
@@ -23,18 +25,20 @@ h1{
     width: 50%;
     height: 36%;
     /* background: radial-gradient(#CDD48E 0%, #fff 90%); */
-    background-color: #fff;
+    background-color: #d2c5c5eb;
 }
 
-.header button:hover{
-    opacity: 50%;
+.header button:hover {
+    background-color: #c2b97ffd;
 }
 
 .box {
-    background-color: #BBC2E2;
-    border: 5px solid rgba(0, 0, 0, 0.568);
-    /* color: azure; */
-    height: 40px;
+    background-color: #8298ff63;
+    border-top: 3px solid rgba(0, 0, 0, 0.568);
+    border-bottom: 3px solid rgba(0, 0, 0, 0.568);
+    height: 37px;
+    font-weight: bold;
+    /* word-spacing: 5px; */
 }
 
 .header h2 {
@@ -67,7 +71,7 @@ button {
     margin: 10px;
     border-radius: 4px;
 
-    background-color: #c2b97f73;
+    background-color: #fff08d82;
     cursor: pointer;
     font-size: 13px;
     text-shadow: 5px 5px 10px #ff0000;
@@ -75,7 +79,7 @@ button {
     /* font-family: 'Rubik Moonrocks', cursive; */
 }
 
-.difficulty button{
+.difficulty button {
     font-size: 16px;
 }
 
@@ -141,7 +145,9 @@ img {
 }
 
 .hints {
-    margin-left: -2px;
+    padding: 5px;
+    margin-right: 10px;
+    letter-spacing: -7px;
     font-family: 'Orbitron', sans-serif;
 }
 
@@ -176,19 +182,22 @@ footer {
     margin-right: 20px
 }
 
-.manual-mode{
+.manual-mode {
     background-color: black;
     color: #fff;
 }
 
-.mega-on{
+.mega-on {
     background-color: black;
     color: #fff;
 }
 
-.exterminator{
-    width: 82px;
-    height: 82px;
+.exterminator {
+    width: 39px;
+    height: 61px;
+    padding-top: 20px;
+    margin-left: 30px;
+
     cursor: pointer;
 }
 
@@ -196,46 +205,48 @@ footer {
 body {
     color: #222;
     background-color: #fff;
-  }
-  /* Dark theme colors */
-  .dark-theme {
+}
+
+/* Dark theme colors */
+.dark-theme {
     color: #eee;
     background-color: #121212;
-  }
+}
 
-  .shown .dark-theme{
+.shown .dark-theme {
     background-color: #121212;
-  }
+}
 
-  button.dark-theme{
+button.dark-theme {
     background-color: #717568
-  }
+}
 
-  body.dark-theme{
+body.dark-theme {
     /* filter: brightness(50%); */
     filter: brightness(.8) contrast(1.2);
-    background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-    url("../img/bgtry03.png");
-  }
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url("../img/bgtry03.png");
+}
 
-  /* The switch - the box around the slider */
+/* The switch - the box around the slider */
 .switch {
     position: relative;
     display: inline-block;
     width: 60px;
     height: 34px;
-  }
-  
-  /* Hide default HTML checkbox */
-  .switch input {
+    margin-right: 13px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
     opacity: 0;
     width: 0;
     height: 0;
-  }
-  
-  /* The slider */
-  .slider {
+}
+
+/* The slider */
+.slider {
     position: absolute;
     cursor: pointer;
     height: 25px;
@@ -246,9 +257,9 @@ body {
     background-color: #ccc;
     -webkit-transition: .4s;
     transition: .4s;
-  }
-  
-  .slider:before {
+}
+
+.slider:before {
     position: absolute;
     content: "";
     height: 18px;
@@ -258,27 +269,27 @@ body {
     background-color: white;
     -webkit-transition: .4s;
     transition: .4s;
-  }
-  
-  input:checked + .slider {
+}
+
+input:checked+.slider {
     background-color: #2196F3;
-  }
-  
-  input:focus + .slider {
+}
+
+input:focus+.slider {
     box-shadow: 0 0 1px #2196F3;
-  }
-  
-  input:checked + .slider:before {
+}
+
+input:checked+.slider:before {
     -webkit-transform: translateX(26px);
     -ms-transform: translateX(26px);
     transform: translateX(26px);
-  }
-  
-  /* Rounded sliders */
-  .slider.round {
+}
+
+/* Rounded sliders */
+.slider.round {
     border-radius: 34px;
-  }
-  
-  .slider.round:before {
+}
+
+.slider.round:before {
     border-radius: 50%;
-  }
+}
