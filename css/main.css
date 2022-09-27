@@ -210,16 +210,36 @@ body {
 /* Dark theme colors */
 .dark-theme {
     color: #eee;
-    background-color: #121212;
+    background-color: #2C2C2C;
 }
 
-.shown .dark-theme {
-    background-color: #121212;
-}
 
 button.dark-theme {
     background-color: #717568
 }
+
+table.dark-theme {
+    background-color: darkslategray;
+}
+
+td.dark-theme {
+    background-color: darkslategray;
+}
+
+td.dark-theme :hover{
+    background-color: rgba(87, 177, 177, 0.785);
+}
+
+td.dark-theme:hover {
+    background-color: rgba(28, 197, 197, 0.888);
+}
+
+td.shown.dark-theme {
+    background-color: rgba(28, 197, 197, 0.888);
+}
+
+
+
 
 body.dark-theme {
     /* filter: brightness(50%); */

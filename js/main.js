@@ -23,6 +23,7 @@ const gLoseAudio = new Audio('../audio/spiderman-lose.wav')
 const gExterminatorAudio = new Audio('../audio/bomb-has-been-defused-csgo-sound-effect.mp3')
 
 // Global variables
+var gIsDarkMode = false
 
 var gElTable = document.querySelector('table')
 var gElHints = document.querySelector('.hints')
@@ -53,7 +54,7 @@ var gGame = {
     megaHint: 1,
     isMegaHint: false,
     megaHintPos: null,
-    minesPos:[],
+    minesPos: [],
 }
 
 var gBoard
@@ -103,6 +104,7 @@ function renderBoard(mat) {
             if (cell.isMarked) className += ' marked'
             if (cell.isShown) className += ' shown'
             if (cell.mineClicked) className += ' mine-clicked'
+            if (gIsDarkMode) className += ' dark-theme'
 
             var currElement = cell.minesAroundCount ? cell.minesAroundCount : EMPTY
             if (cell.isMine) currElement = MINE_IMG
@@ -333,7 +335,7 @@ function gameOver(elMine, i, j) {
 
     removeLife()
     document.querySelector('h2 span').innerText = '\nK.O'
-    
+
 
     gLoseAudio.play()
 }
@@ -387,7 +389,7 @@ function resetGameStats() {
         megaHint: 1,
         isMegaHint: false,
         megaHintPos: null,
-        minesPos:[]
+        minesPos: [],
 
     }
 
@@ -539,15 +541,26 @@ function manualMode(elBtn) {
 }
 
 function onDarkMode() {
-          document.body.classList.toggle("dark-theme");
+    gIsDarkMode = gIsDarkMode? false : true
 
-          var elBtns = document.querySelectorAll('button')
-          for(var i=0;i<elBtns.length;i++){
-            elBtns[i].classList.toggle("dark-theme");
-          }
+    document.body.classList.toggle("dark-theme");
 
-          document.querySelector('.header').classList.toggle('dark-theme')
-              
+    var elBtns = document.querySelectorAll('button')
+    for (var i = 0; i < elBtns.length; i++) {
+        elBtns[i].classList.toggle("dark-theme");
+    }
+
+    document.querySelector('.header').classList.toggle('dark-theme')
+    gElTable.classList.toggle('dark-theme')
+
+    var elTds = document.querySelectorAll('td')
+
+    for (var i = 0; i < elTds.length; i++) {
+        elTds[i].classList.toggle("dark-theme");
+    }
+    renderBoard(gBoard)
+
+
 }
 
 function megaHint() {
@@ -590,16 +603,16 @@ function showSelectedArea(posA, posB) {
     }, 2000);
 }
 
-function onExterminator(){
-    if(gGame.isFirstClick) return
-    if(gGame.minesPos.length <3) return
-    if(gGame.minesPos.length != gLevel.MINES) return
-    
+function onExterminator() {
+    if (gGame.isFirstClick) return
+    if (gGame.minesPos.length < 3) return
+    if (gGame.minesPos.length != gLevel.MINES) return
+
     // Looping through 3 mines
-    for(var i =0 ;i<3;i++){
-        var randNum = getRandomInt(0,gGame.minesPos.length)
+    for (var i = 0; i < 3; i++) {
+        var randNum = getRandomInt(0, gGame.minesPos.length)
         gBoard[gGame.minesPos[randNum].i][gGame.minesPos[randNum].j].isMine = false
-        gGame.minesPos.splice(randNum,1)
+        gGame.minesPos.splice(randNum, 1)
     }
     setMinesNegsCounts(gBoard)
 
