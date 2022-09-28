@@ -17,10 +17,10 @@ const LIFE_IMG = '🕷️'
 const FLAGS_IMG = '🕸️'
 const HINT_IMG = '💡'
 
-const gWinAudio = new Audio('../audio/spiderman-thank-you.wav')
-const gApplauseAudio = new Audio('../audio/applause.wav')
-const gLoseAudio = new Audio('../audio/spiderman-lose.wav')
-const gExterminatorAudio = new Audio('../audio/bomb-has-been-defused-csgo-sound-effect.mp3')
+const gWinAudio = new Audio('audio/spiderman-thank-you.wav')
+const gApplauseAudio = new Audio('audio/applause.wav')
+const gLoseAudio = new Audio('audio/spiderman-lose.wav')
+const gExterminatorAudio = new Audio('audio/bomb-has-been-defused-csgo-sound-effect.mp3')
 
 // Global variables
 var gIsDarkMode = false
